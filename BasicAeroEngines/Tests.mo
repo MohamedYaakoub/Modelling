@@ -1236,9 +1236,7 @@ end TestMyCompressor;
       Placement(visible = true, transformation(origin = {-34, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   BasicAeroEngines.Components.CompressorMapsBetaLines compressorMapsBetaLines_HPC(data = gsp_hpc)  annotation(
       Placement(visible = true, transformation(origin = {-14, 20}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  BasicAeroEngines.Components.TurbineStodola turbineStodola_LPT(data = gSP_LPT_Stodola)  annotation(
-      Placement(visible = true, transformation(origin = {74, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  BasicAeroEngines.Components.CooledTurbine cooledTurbine_HPT(data = gSP_HPT_Stodola)  annotation(
+  BasicAeroEngines.Components.CooledTurbine cooledTurbine_HPT(data = gSP_HPT_BetaLines)  annotation(
       Placement(visible = true, transformation(origin = {54, 20}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   BasicAeroEngines.Components.CombustionChamberLHV combustionChamberLHV(P_start(displayUnit = "Pa") = 2.9943e+6, T_start(displayUnit = "K") = 1373.15, V = 0.1, ZC = 1, ZH = 1.9167)  annotation(
       Placement(visible = true, transformation(origin = {20, 50}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -1258,14 +1256,16 @@ end TestMyCompressor;
       Placement(visible = true, transformation(origin = {-34, -48}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   parameter BasicAeroEngines.Data.Compressors.GSP_HPC gsp_hpc annotation(
       Placement(visible = true, transformation(origin = {-16, 74}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  parameter BasicAeroEngines.Data.Turbines.GSP_HPT_Stodola gSP_HPT_Stodola annotation(
-      Placement(visible = true, transformation(origin = {54, 74}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  parameter BasicAeroEngines.Data.Turbines.GSP_LPT_Stodola gSP_LPT_Stodola(P_E_nom(displayUnit = "Pa"), P_L_nom(displayUnit = "Pa"), T_E_nom(displayUnit = "K"))  annotation(
-      Placement(visible = true, transformation(origin = {76, -48}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.RealExpression netThrust(y = nozzleExhaust.thrust - airIntake.drag + nozzleAir.thrustBypass) annotation(
       Placement(visible = true, transformation(origin = {10, -88}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.TimeTable fuelFlow(table = [0, 2.204; 20, 2.204; 20, 2.0; 100, 2.0]) annotation(
       Placement(visible = true, transformation(origin = {20, 86}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  BasicAeroEngines.Components.TurbineMapsBetaLines turbineMapsBetaLines(data = gSP_LPT_BetaLines)  annotation(
+      Placement(visible = true, transformation(origin = {74, -10}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  parameter BasicAeroEngines.Data.Turbines.GSP_HPT_BetaLines gSP_HPT_BetaLines annotation(
+      Placement(visible = true, transformation(origin = {56, 74}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  parameter BasicAeroEngines.Data.Turbines.GSP_LPT_BetaLines gSP_LPT_BetaLines annotation(
+      Placement(visible = true, transformation(origin = {76, -46}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   equation
     connect(inertia_HPSpool.flange_b, cooledTurbine_HPT.shaft) annotation(
       Line(points = {{30, 20}, {48, 20}}));
@@ -1273,18 +1273,12 @@ end TestMyCompressor;
       Line(points = {{-8, 20}, {10, 20}}));
     connect(compressorMapsBetaLines_LPC.shaft_b, inertia_LPSpool.flange_a) annotation(
       Line(points = {{-28, -10}, {10, -10}}));
-    connect(inertia_LPSpool.flange_b, turbineStodola_LPT.shaft) annotation(
-      Line(points = {{30, -10}, {68, -10}}));
     connect(fan.outlet_bypass, nozzleAir.inlet) annotation(
       Line(points = {{-60, 16}, {-50, 16}, {-50, 52}, {-40, 52}}, color = {170, 223, 255}));
     connect(fan.outlet_core, compressorMapsBetaLines_LPC.inlet) annotation(
       Line(points = {{-60, 0}, {-40, 0}}, color = {170, 223, 255}));
     connect(compressorMapsBetaLines_LPC.outlet, compressorMapsBetaLines_HPC.inlet) annotation(
       Line(points = {{-28, -4}, {-28, 30}, {-20, 30}}, color = {170, 223, 255}));
-    connect(cooledTurbine_HPT.outlet, turbineStodola_LPT.inlet) annotation(
-      Line(points = {{60, 30}, {68, 30}, {68, -4}}, color = {129, 170, 194}));
-    connect(turbineStodola_LPT.outlet, nozzleExhaust.inlet) annotation(
-      Line(points = {{80, 0}, {84, 0}, {84, 52}}, color = {129, 170, 194}));
     connect(compressorMapsBetaLines_HPC.outlet, combustionChamberLHV.airInlet) annotation(
       Line(points = {{-8, 26}, {-8, 50}, {10, 50}}, color = {170, 223, 255}));
     connect(combustionChamberLHV.exhaust, cooledTurbine_HPT.inlet) annotation(
@@ -1297,6 +1291,12 @@ end TestMyCompressor;
       Line(points = {{-88, 6}, {-72, 6}}, color = {170, 223, 255}));
     connect(fuelFlow.y, combustionChamberLHV.fuelFlow) annotation(
       Line(points = {{31, 86}, {36, 86}, {36, 68}, {20, 68}, {20, 60}}, color = {0, 0, 127}));
+  connect(inertia_LPSpool.flange_b, turbineMapsBetaLines.shaft) annotation(
+      Line(points = {{30, -10}, {68, -10}}));
+  connect(cooledTurbine_HPT.outlet, turbineMapsBetaLines.inlet) annotation(
+      Line(points = {{60, 30}, {68, 30}, {68, -4}}, color = {129, 170, 194}));
+  connect(turbineMapsBetaLines.outlet, nozzleExhaust.inlet) annotation(
+      Line(points = {{80, 0}, {80, 52}, {84, 52}}, color = {129, 170, 194}));
   end TurbofanTakeOff;
   
   model TurbofanTakeOff_normalturbine
